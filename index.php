@@ -3,7 +3,6 @@
 <head>
 <title>GetAssist Push Notifications</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link href="style.css" type="text/css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.1.min.js"
     integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
     crossorigin="anonymous"></script>
@@ -11,64 +10,59 @@
 <body>
     
 <?php
-
-include './dbconnect.php';
-$conn = OpenCon();
-echo "Connected Successfully";
-CloseCon($conn);
-
-
+	include './dbconnect.php';
+	$conn = OpenCon();
+	echo "Connected Successfully";
+	CloseCon($conn);
 ?> 
 
-    <script>
-        // enable this if you want to make only one call and not repeated calls automatically
-        // pushNotify();
+<script>
+    function pushNotify() {
 
-        // following makes an AJAX call to PHP to get notification every 10 secs
-        setInterval(function() { pushNotify(); }, 5000);
+		if (!("Notification" in window)) {
+			alert("Web browser does not support desktop notification");
+        }
+        
+        if (Notification.permission !== "granted") {
+			Notification.requestPermission();
+        } else {
+            $.ajax({
+                url: "push-notify.php",
+                type: "POST",
+                success: function(data, textStatus, jqXHR) {
+                    if ($.trim(data)) {
+                        var dataObj = JSON.parse(data);
+                        console.log(dataObj);
+                        var notification = createNotification(dataObj.title, dataObj.icon, dataObj.body, dataObj.url);
 
-        function pushNotify() {
-        	if (!("Notification" in window)) {
-        		// checking if the user's browser supports web push Notification
-        		alert("Web browser does not support desktop notification");
-        	}
-        	if (Notification.permission !== "granted")
-        		Notification.requestPermission();
-        	else {
-        		$.ajax({
-        			url: "push-notify.php",
-        			type: "POST",
-        			success: function(data, textStatus, jqXHR) {
-        				// if PHP call returns data process it and show notification
-        				// if nothing returns then it means no notification available for now
-        				if ($.trim(data)) {
-        					var data = jQuery.parseJSON(data);
-        					console.log(data);
-        					notification = createNotification(data.title, data.icon, data.body, data.url);
+                        setTimeout(function() {
+                            notification.close();
+                        }, 10000);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) { }
+            });
+        }
+    }
 
-        					// closes the web browser notification automatically after 5 secs
-        					setTimeout(function() {
-        						notification.close();
-        					}, 10000);
-        				}
-        			},
-        			error: function(jqXHR, textStatus, errorThrown) { }
-        		});
-        	}
+    function createNotification(title, icon, body, url) {
+        var notification = new Notification(title, {
+            icon: icon,
+            body: body,
+        });
+
+        notification.onclick = function() {
+            window.open(url);
         };
 
-        function createNotification(title, icon, body, url) {
-        	var notification = new Notification(title, {
-        		icon: icon,
-        		body: body,
-        	});
-        	// url that needs to be opened on clicking the notification
-        	// finally everything boils down to click and visits right
-        	notification.onclick = function() {
-        		window.open(url);
-        	};
-        	return notification;
-        }
-    </script>
+        return notification;
+    }
+
+    // Enable this line if you want to make only one call and not repeated calls automatically
+    pushNotify();
+
+    // Call pushNotify every 10 seconds
+    // setInterval(pushNotify, 10000);
+</script>
 </body>
 </html>
