@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Web Push Notifications in PHP</title>
+<title>GetAssist Push Notifications</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="style.css" type="text/css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.1.min.js"
@@ -12,13 +12,13 @@
     
 <?php
 
-// include './db_connect.php';
-// $conn = OpenCon();
-// echo "Connected Successfully";
-// CloseCon($conn);
+include './dbconnect.php';
+$conn = OpenCon();
+echo "Connected Successfully";
+CloseCon($conn);
 
-?>
 
+?> 
 
     <script>
         // enable this if you want to make only one call and not repeated calls automatically
