@@ -1,47 +1,36 @@
-
 <?php
+   include 'dbconnect.php';
 
-include 'dbconnect.php';
-$conn = OpenCon();
-echo "Connected Successfully";
-CloseCon($conn);
+   $conn = OpenCon();
+   // No need to echo here, as it might cause issues when passing data
 
+   $getinfo = "SELECT 
+                  id, 
+                  title, 
+                  body,
+                  icon,
+                  payload
+               FROM details";
 
+   $notificationData = []; // Initialize an array to hold notification data
 
+   if ($result = $conn->query($getinfo)) {
+      while ($row = $result->fetch_object()) {
+         $notificationData[] = [
+               'id' => $row->id,
+               'title' => $row->title,
+               'body' => $row->body,
+               'icon' => $row->icon,
+               'payload' => $row->payload
+         ];
+      }
+      $result->close();
+   } else {
+      echo 'Something went wrong.';
+   }
 
-$getinfo = "select 
-                   id, 
-                    title, 
-                   body,
-                   icon,
-                   payload
-                   from  details ";
+   CloseCon($conn);
 
-
-                   if ($result = $conn->query($getinfo)) {    
-                    while ($row = $result->fetch_object()) {
-                       $id = $row->id;
-                       $title = $row->title;
-                       $body =$row->body;
-                       $icon =$row->icon;
-                       $payload =$row->payload;
-                       echo $body;
-                   }
-                   $result->close();
-               }
-               else
-               {
-                  echo'something went wrong.';
-               }
-
-
-
-
-
-
-
-
-
-
+   // Return the notification data as JSON
+   json_encode($notificationData);
 ?>
- 
